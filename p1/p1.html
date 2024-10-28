@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-10-27 Sun 18:22 -->
+<!-- 2024-10-28 Mon 19:26 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Visualizing Behavioural Traits of Quality-Diversity Algorithms with Natural Language Queries</title>
@@ -197,86 +197,167 @@
 <body>
 <div id="content" class="content">
 <h1 class="title">Visualizing Behavioural Traits of Quality-Diversity Algorithms with Natural Language Queries</h1>
-
-<div id="outline-container-orgcad1c7f" class="outline-2">
-<h2 id="orgcad1c7f"><span class="section-number-2">1.</span> Background</h2>
+<div id="outline-container-orgcf1ac3a" class="outline-2">
+<h2 id="orgcf1ac3a"><span class="section-number-2">1.</span> Background</h2>
 <div class="outline-text-2" id="text-1">
 <p>
-In Reinforcement Learning, we're often interested in the best performing solution of a task domain. But understanding the entire fitness landscape of different strategies
-is equally informative. Quality-diversity algorithms are a reinforcement learning methodology which aim
-to solve a task domain with a population of diverse solutions instead of a single best-performing solution.
+Traditional methods of reinforcement learning, such as gradient-based methods, often learn a
+single strategy for interacting with a task domain. Often times, there are different strategies
+that may be just as optimal for solving a task. Evolutionary algorithms that evolve a population
+of candidate solutions to a task are an approach that can capture these diverse policies.
 </p>
 
 <p>
-In this paper, we look at one particular instance of a Quality-Diversity algorithm, CMA-ME.
-Which combines two earlier predecessor works, CMA-ES, a famous blackbox optimization algorithm
-and the other MAP-Elites, which archives individuals in a population by their behavioural characteristics.
-In this combination, CMA-ME, uses CMA-ES to optimize a neural network to find competitive policies (methods
-of interacting with the environment) to optimize the reward achieved and CMA-ME uses MAP-Elites to archive
-the best performing solutions by their behavioural characteristics, such that a diverse set of strategies
-are 
+The subset of evolutionary algorithms that are particularly interested in balancing the competitiveness
+of the solution with the novelty of the solution are known as Quality-Diversity algorithms.
+In this paper, we talk about one of these Quality-Diversity algorithms known as CMA-ME.
+</p>
+
+<p>
+The CMA-ME algorithm is composed of two ideas common in the Evolutionary Computation field.
+The first is CMA-ES, a state-of-the-art black-box optimization algorithm. The second is MAP-Elites,
+a mechanism designed to preserve the diversity of the solutions found by an evolutionary algorithm.
+CMA-ME combines these strategies by using CMA-ES, for neuro-evolution, that is, using
+blackbox optimization to learn the weights of a neural network (as opposed to backpropagation).
+</p>
+
+<p>
+While using MAP-Elites to archive the best neural networks by their behavioural traits.
+</p>
+
+
+<div id="org3532cd5" class="figure">
+<p><img src="./map-elites.png" alt="map-elites.png" />
+</p>
+<p><span class="figure-number">Figure 1: </span>The behavioural space captured by MAP-Elites</p>
+</div>
+
+<p>
+Figure 1 provides a visualization of the MAP-Elites archive. In this Figure, we characterize
+ a solution by behavioural axes, labelled Feature 1 and Feature 2. In this case, these features
+ measure the behaviour of a solution. While the Z-axis, is the overall fitness of the solution.
+The surface of the MAP-Elites archive is made up of elite solutions that are locally competitive.
+In other words, the best solution for that kind of distinct behaviour.
+</p>
+
+<p>
+If you consider a reinforcement learning task such as learning to land a Lunar Lander.
+Two features could be the time that it takes to land the Lunar Lander; and, the fuel
+efficiency of the Lunar Lander. The Fitness would come directly from the task environment
+but it would be some reward signal that defines how effectively the Lunar Lander performed the landing.
+As you can imagine, a high fitness would be a smooth, safe landing while a low fitness would
+denote a crash landing.
+</p>
+
+
+<div id="orgf2ae811" class="figure">
+<p><img src="./half_cheetah2.png" alt="half_cheetah2.png" />
+</p>
+<p><span class="figure-number">Figure 2: </span>Mujoco's HalfCheetah environment</p>
+</div>
+
+
+<div id="org1227a67" class="figure">
+<p><img src="./ant2.png" alt="ant2.png" />
+</p>
+<p><span class="figure-number">Figure 3: </span>Mujoco's Ant environment</p>
+</div>
+
+<p>
+In this paper, we will work with two Google DeepMind standard reinforcement learning benchmarks,
+the MuJoCo HalfCheetah-v5 environment and the Ant-v5 environment. Both task domains selected are
+locomotion tasks where the reward is characterized by how much distance can be travelled by the controllers
+within a fixed number of timesteps. The HalfCheetah-v5 environment is a bipedal controller task
+while the Ant-v5 environment is a quadripedal controller.
+</p>
+
+<p>
+For a concrete example, a point in the MAP-Elites
+archive &lt;0.5, 0.5, 100&gt; might represent a solution that balances fuel-efficiency and time to land as equally important
+while achieving a cumulative reward of 100. Where another example &lt;0.1, 0.9, -100&gt; might represent
+a solution that minimizes the time required to land at the cost of fuel efficiency and results in a fitness of -100, a crash landing.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org3c1de89" class="outline-2">
-<h2 id="org3c1de89"><span class="section-number-2">2.</span> Problem Statement</h2>
+<div id="outline-container-orgcbe4c7b" class="outline-2">
+<h2 id="orgcbe4c7b"><span class="section-number-2">2.</span> Problem Statement</h2>
 <div class="outline-text-2" id="text-2">
 <p>
-In this paper, we make a novel contribution of combining the fitness landscape found by the CMA-ME algorithm
-and we bolt on natural language processing capabilities in order to analyze the strategies found.
-This contribution serves two purposes. First, since the behavioural space is often complex and high-dimensional,
-adding the ability to query the space with natural language improves the researcher's ability to make sense of the
-strategies. Secondly, by integratnig natural language processing, we expand the edge of what is possible and provide
-an entry point to other researches interested in the intersection of natural language processing and reinforcement learning
-reducing the barrier to entry and hopefully generating some interest in the process.
+This paper makes the two following novel contributions: we use natural language processing
+to annotate the candidate solutions based on their cartesian coordinates in the MAP-Elites archive
+with natural language descriptions.
 </p>
 
+<p>
+To do this for the Mujoco environments, the features we choose to identify for the behavioural
+axes are the proportion of time that the leg comes into contact with the ground. In the HalfCheetah-v5 environment,
+this would be a 2-dimensional solution space where &lt;x<sub>1</sub>, x<sub>2</sub>&gt; represent the proportion of the time
+that the back leg is making contact with the ground, and the front leg is making contact with the ground
+respectively. For the Ant-v5 environment, this would be a 4-dimensional solution space &lt;x<sub>1</sub>, x<sub>2</sub>, x<sub>3</sub>, x<sub>4</sub>&gt;
+where each of the four legs proportion of time in contact with the ground is stored.
+The purpose of the features selected are to characterize the walking gait of the controller.
+</p>
 
-<div id="org8f46e8b" class="figure">
-<p><img src="./half_cheetah.png" alt="half_cheetah.png" />
+<p>
+For the HalfCheetah-v5 environment, the MAP-Elites archive will be 3-dimensional.
+In which, the first two dimensions are the candidate solution's behaviour and the last dimension
+is the maximum fitness associated with the best performing solution with that behaviour.
+</p>
+
+<p>
+For the Ant-v5 environment, the MAP-Elites archive will be 5-dimensional. Similarly to HalfCheetah-v5,
+the first four dimensions characterize the solution's behaviour, while the 5th dimension is the fitness
+of the elite solution matching that behaviour.
+</p>
+
+<p>
+A solution for Ant-v5 might be &lt;0.25, 0.25, 0.25, 0.25, 100&gt; which receives a fitness/reward of 100
+for each leg being in contact with the ground 1/4 of the time. While another solution might be
+&lt;1.0, 1.0, 1.0, 1.0, 0&gt; in which case a solution retrieves no reward because all legs never
+leave contact with the ground and thus never move.
+</p>
+
+<p>
+In this case, our first novel contribution provides a predicted behaviour expressed in natural language
+based on the solutions position in the archive.
+</p>
+
+<p>
+Our second novel contribution is to provide the nearest solution matching a given natural language query.
+For example "An individual that prefers to use only two legs." should return the individual mapping nearest to a point
+&lt;0.2, 0.2, 0.8, 0.8&gt;.
+</p>
+
+<p>
+The first contribution solves the problem of analyzing behaviours. When training an evolutionary algorithm
+against a reinforcement learning task domain, it's possible for there to be 1000s of solutions at any given generation.
+Having a Natural Language Processing model capable of annotating these individuals automatically which saves the
+researcher the manual effort of doing so.
+</p>
+
+<p>
+The second contribution makes the querying and analysis of the MAP-Elites archive significantly more feasible.
+Especially for high-dimensional solution spaces that aren't easily visible such as the Ant-v5 environment.
+Since it's difficult to visualize the archive, it's difficult to make sense of the fitness landscape
+of various strategies and difficult to look up individuals for further visualization. By having a natural language
+search we're effectively able to leverage natural language as a tool for analysis.
+</p>
+
+<p>
+With both of these contributions, we expand the edge of what is currently possible with
+the intersection of Natural Language Processing, Reinforcement Learning and Evolutionary Computation.
+By doing so, we provide a stepping stone for other researchers to explore new ideas from.
+And with this new stepping stone, we hope to generate new interest in this area.
 </p>
 </div>
-
-
-<div id="org279d323" class="figure">
-<p><img src="./ant.png" alt="ant.png" />
-</p>
-</div>
-</div>
 </div>
 
-<div id="outline-container-org25eb471" class="outline-2">
-<h2 id="org25eb471"><span class="section-number-2">3.</span> Related Work</h2>
+<div id="outline-container-org6c44c1d" class="outline-2">
+<h2 id="org6c44c1d"><span class="section-number-2">3.</span> Possible Solutions</h2>
 <div class="outline-text-2" id="text-3">
 <p>
-In Salimans et al., Evolution Strategies are applied as an alternative paradigm to neural networks
-in reinforcement learning. They found that evolutionary algorithms are competitive with state-of-the-art
-gradient-based methods and invigorated research in the direction of evolutionary algorithms. 
-</p>
-
-<p>
-In Colas et. al, they apply the MAP-Elites algorithm against the Mujoco's Ant environment. In their work,
-they characterize the behavioural axes of the MAP-Elites by the proportion of the time that each leg comes into
-contact with the ground. They also investigate the role of quality-diversity algorithms for damage recovery in robotics tasks.
-They do so by altering the Mujoco simulator to prevent the control of joints. In this case, they investigate
-if it is possible for the robotic controller to switch from a balanced 4-legged policy to a 3-legged policy
-without the damaged leg.
-</p>
-
-<p>
-In Tjanaka et al, they provide <i>pyribs</i>, an implementation of the CMA-ME algorithm that combines the CMA-ES blackbox optimization method with
-the MAP-Elites archive. In this paper, <i>pyribs</i> is used to collect the training dataset for the HalfCheetah and Ant environments.
-</p>
-</div>
-</div>
-
-<div id="outline-container-org9cf2ab8" class="outline-2">
-<h2 id="org9cf2ab8"><span class="section-number-2">4.</span> Methodology</h2>
-<div class="outline-text-2" id="text-4">
-<p>
-The following goals for this project are identified, and will be completed in this order as much as possible
-before the deadline.
+In order to make this paper happen, we have the following milestones set:
 </p>
 
 <ol class="org-ol">
@@ -292,43 +373,167 @@ that match the description.</li>
 <li>Visualization: Given a query that selects a region of the behavioural space, illuminate the behavioural
 space graph with the search region.</li>
 </ol>
+
+<p>
+In order to begin with the first milestone of self-labelling individuals. A language model such as GPT
+will be used. With careful prompt crafting, a dataset will be created for the HalfCheetah-v5 and Ant-v5 environments
+that map individual points to natural language descriptions of such points.
+</p>
+
+<p>
+Just as a quick proof of concept, ChatGPT can be prompted with the following:
+</p>
+
+<p>
+"
+For the Mujoco HalfCheetah environment. Imagine we use MAP-Elites to construct a behavioural archive of candidate solutions. In this case, the features we use as behavioural axes are: 1. the proportion of time that the back leg comes into contact with the ground and 2. the proportion of time that the front leg comes into contact with the ground. What do you imagine the resulting behaviour of &lt;0.5, 0.5&gt; would look like. How about &lt;1.0, 1.0&gt;?
+"
+</p>
+
+<p>
+And it will respond with the following answer:
+"
+&lt;0.5, 0.5&gt;: Balanced trotting motion, moderate ground contact, relatively stable but not maximized for speed.
+&lt;1.0, 1.0&gt;: Very stable, shuffling motion with both legs in constant ground contact, resulting in slow movement and inefficient locomotion.
+"
+</p>
+
+<p>
+We can use similar prompts for the entire domain of x<sub>1</sub>, and x<sub>2</sub> and use data augmentation techniques
+to further increase the size of the dataset.
+</p>
+
+<p>
+This should provide us with a sufficient amount of labels for each candidate solution.
+</p>
+
+<p>
+The second milestone can utilize the same dataset collected for the first milestone.
+If we use a language model such as Sentence-BERT, we can train said model to learn vectors
+for each label in the dataset.
+</p>
+
+<p>
+Then it would be possible to return the nearest individual in the archive simply by returning
+the individual in the archive with the lowest Euclidean distance from the latent vector
+found by the BERT model.
+</p>
+
+<p>
+The third milestone would be to simply apply DB-SCAN clustering to the MAP-Elites archive
+such that each neighbourhood of similar behaviours is assigned a centroid. Then in order to return
+ a region of individuals, we could simply
+</p>
+
+<p>
+The fourth milestone is a simple extension of the third milestone, where we can use <i>matplotlib</i>
+and other visualization libraries to illuminate the region of the MAP-Elites archive based on the region
+retrieved by the natural language query in the third milestone.
+</p>
+
+<p>
+Finally, we can qualitatively assess our model by seeing how well our natural language descriptions
+and queries describe the behaviours seen by visualizing the policies found by CMA-ME while
+interacting with the environment.
+</p>
 </div>
 </div>
 
-<div id="outline-container-org7bbe4c4" class="outline-2">
-<h2 id="org7bbe4c4"><span class="section-number-2">5.</span> Project Plan</h2>
+<div id="outline-container-org66ea1ef" class="outline-2">
+<h2 id="org66ea1ef"><span class="section-number-2">4.</span> Related Work</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+In Salimans et al., Evolution Strategies are applied as an alternative paradigm to neural networks
+in reinforcement learning. They found that evolutionary algorithms are competitive with state-of-the-art
+gradient-based methods and invigorated research in the direction of evolutionary algorithms. 
+</p>
+
+<p>
+In Colas et. al, (Colas, Cédric and Madhavan, Vashisht and Huizinga, Joost and Clune, Jeff, 2020) they apply the MAP-Elites algorithm against the Mujoco's Ant environment. In their work,
+they characterize the behavioural axes of the MAP-Elites by the proportion of the time that each leg comes into
+contact with the ground. They also investigate the role of quality-diversity algorithms for damage recovery in robotics tasks.
+They do so by altering the Mujoco simulator to prevent the control of joints. In this case, they investigate
+if it is possible for the robotic controller to switch from a balanced 4-legged policy to a 3-legged policy
+without the damaged leg.
+</p>
+
+<p>
+In Tjanaka et al, they provide <i>pyribs</i> (Tjanaka, Bryon and Fontaine, Matthew C and Lee, David H and Zhang, Yulun and Balam, Nivedit Reddy and Dennler, Nathaniel and Garlanka, Sujay S and Klapsis, Nikitas Dimitri and Nikolaidis, Stefanos, 2023), an implementation of the CMA-ME algorithm that combines the CMA-ES blackbox optimization method with
+the MAP-Elites archive. In this paper, <i>pyribs</i> is used to collect the training dataset for the HalfCheetah and Ant environments.
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-orgdc993fa" class="outline-2">
+<h2 id="orgdc993fa"><span class="section-number-2">5.</span> Project Plan</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Week of October 28th
 </p>
 
-
+<p>
+The training data will be collected using the <i>pyribs</i> implementation of CMA-ME.
+The first batch of data will include 
+Then a dataset of labels/templates will be created using a large language model (GPT).
+</p>
 
 <p>
 Week of November 4th
 </p>
 
 <p>
+During this week, model training will begin in training the self-labelling implementation.
+Then the converse
+</p>
+
+
+<p>
 Week of November 11th
+</p>
+
+<p>
+Reading Week (I'm going on vacation)
 </p>
 
 <p>
 Week of November 18th
 </p>
 
+
 <p>
 Week of November 25th
+</p>
+
+<p>
+Time reserved for collecting figures and writing the presentation and final report.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org48a7823" class="outline-2">
-<h2 id="org48a7823"><span class="section-number-2">6.</span> References</h2>
+<div id="outline-container-orgafc7fd9" class="outline-2">
+<h2 id="orgafc7fd9"><span class="section-number-2">6.</span> References</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+Colas, Cédric and Madhavan, Vashisht and Huizinga, Joost and Clune, Jeff (2020). <i>Scaling MAP-Elites to deep neuroevolution</i>, ACM.</p>
+
+<p>
+Tjanaka, Bryon and Fontaine, Matthew C and Lee, David H and Zhang, Yulun and Balam, Nivedit Reddy and Dennler, Nathaniel and Garlanka, Sujay S and Klapsis, Nikitas Dimitri and Nikolaidis, Stefanos (2023). <i>Pyribs: A Bare-Bones Python Library for Quality Diversity Optimization</i>, Association for Computing Machinery.</p>
+</div>
+</div>
+
+<div id="outline-container-orgbd3fce9" class="outline-2">
+<h2 id="orgbd3fce9"><span class="section-number-2">7.</span> Appendix:</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+Transcript linking the conversation provided in the Possible Solutions section.
+</p>
+</div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Bryce MacInnis</p>
-<p class="date">Created: 2024-10-27 Sun 18:22</p>
+<p class="date">Created: 2024-10-28 Mon 19:26</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
